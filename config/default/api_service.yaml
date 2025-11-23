@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: controller-manager-api
+  namespace: system
+  labels:
+    app.kubernetes.io/name: k8s-webhook-operator
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  selector:
+    control-plane: controller-manager
+  ports:
+  - name: http
+    port: 80
+    targetPort: http
+    protocol: TCP
