@@ -2,6 +2,13 @@
 
 An HTTP-driven Kubernetes operator that can cordon, drain, and uncordon nodes when it receives REST calls. It runs as a controller-runtime manager (no CRDs yet) and exposes a small API on port 8080.
 
+## Prerequisites
+- Go 1.25+ (for local builds/tests)
+- Docker/BuildKit with buildx (for container builds/push)
+- kubectl
+- helm (for Helm-based install)
+- Access to a Kubernetes cluster (k3d/Rancher Desktop locally, or any cluster for Helm)
+
 ## What it does
 - Exposes `POST /cordon`, `POST /drain`, and `POST /uncordon` endpoints.
 - Uses the in-cluster RBAC-enabled client to patch node schedulability and to drain via the upstream `kubectl` drain helper.
