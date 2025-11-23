@@ -66,6 +66,8 @@ func New(mgr ctrl.Manager, addr string) (*Server, error) {
 // Start blocks until the server stops or the context is cancelled.
 func (s *Server) Start(ctx context.Context) error {
 	mux := http.NewServeMux()
+	mux.HandleFunc("/", s.handleRoot)
+	mux.HandleFunc("/healthz", s.handleHealth)
 	mux.Handle("/cordon", s.wrapHandler(s.handleCordon))
 	mux.Handle("/uncordon", s.wrapHandler(s.handleUncordon))
 	mux.Handle("/drain", s.wrapHandler(s.handleDrain))
@@ -116,6 +118,27 @@ func (s *Server) wrapHandler(fn handlerFunc) http.Handler {
 }
 
 var errBadRequest = errors.New("bad request")
+
+func (s *Server) handleRoot(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet && r.Method != http.MethodHead {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]string{
+		"status":  "ok",
+		"message": "use POST /cordon, /uncordon, or /drain",
+	})
+}
+
+func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet && r.Method != http.MethodHead {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]string{
+		"status": "ok",
+	})
+}
 
 func (s *Server) handleCordon(w http.ResponseWriter, r *http.Request) error {
 	req, err := decodeRequest(r.Body)
