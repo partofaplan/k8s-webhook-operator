@@ -4,10 +4,17 @@ An HTTP-driven Kubernetes operator that can cordon, drain, and uncordon nodes wh
 
 ## Prerequisites
 - Go 1.25+ (for local builds/tests)
-- Docker/BuildKit with buildx (for container builds/push)
+- Docker or Podman (for container builds/push)
 - kubectl
 - helm (for Helm-based install)
 - Access to a Kubernetes cluster (k3d/Rancher Desktop locally, or any cluster for Helm)
+
+## Build without Make (Docker or Podman)
+```sh
+scripts/build-and-push.sh -i <registry>/k8s-webhook-operator:dev --push
+# use Podman
+TOOL=podman scripts/build-and-push.sh -i <registry>/k8s-webhook-operator:dev --push
+```
 
 ## What it does
 - Exposes `POST /cordon`, `POST /drain`, and `POST /uncordon` endpoints.
@@ -18,6 +25,8 @@ An HTTP-driven Kubernetes operator that can cordon, drain, and uncordon nodes wh
 1. Build and push an image (adjust registry/tag as needed):
    ```sh
    make docker-build docker-push IMG=<registry>/k8s-webhook-operator:dev
+   # or with Podman
+   CONTAINER_TOOL=podman make docker-build docker-push IMG=<registry>/k8s-webhook-operator:dev
    ```
 2. Deploy the manifests (includes RBAC, Service, Ingress) into `k8s-webhook-operator-system`:
    ```sh
