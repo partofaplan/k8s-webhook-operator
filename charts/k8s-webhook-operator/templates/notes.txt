@@ -1,0 +1,12 @@
+1. Get the service URL:
+  kubectl get ingress {{ include "k8s-webhook-operator.fullname" . }} {{- if .Release.Namespace }} -n {{ .Release.Namespace }}{{- end }}
+  or port-forward:
+  kubectl port-forward svc/{{ include "k8s-webhook-operator.fullname" . }}-api 8080:{{ .Values.service.port }} {{- if .Release.Namespace }} -n {{ .Release.Namespace }}{{- end }}
+
+2. Try the health endpoint:
+  curl -i http://localhost:8080/healthz
+
+3. Example drain:
+  curl -i -X POST http://localhost:8080/drain \
+    -H "Content-Type: application/json" \
+    -d '{"node":"<node-name>","force":true,"ignoreDaemonSets":true}'

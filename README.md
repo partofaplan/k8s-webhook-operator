@@ -7,7 +7,7 @@ An HTTP-driven Kubernetes operator that can cordon, drain, and uncordon nodes wh
 - Uses the in-cluster RBAC-enabled client to patch node schedulability and to drain via the upstream `kubectl` drain helper.
 - Ships with a Service and Traefik Ingress so you can reach it easily in k3d/Rancher Desktop.
 
-## Deploy to your k3d cluster
+## Deploy locally (k3d/Rancher Desktop + Traefik)
 1. Build and push an image (adjust registry/tag as needed):
    ```sh
    make docker-build docker-push IMG=<registry>/k8s-webhook-operator:dev
@@ -27,6 +27,24 @@ To run the controller locally against your kubeconfig instead of deploying, use:
 make install   # installs RBAC only (no CRDs present today)
 make run
 ```
+
+## Deploy to any cluster (Helm)
+```sh
+helm install k8s-webhook-operator charts/k8s-webhook-operator \
+  --namespace k8s-webhook-operator-system --create-namespace \
+  --set image.repository=<registry>/k8s-webhook-operator \
+  --set image.tag=dev
+```
+
+Ingress options (enable only if your platform uses an ingress controller):
+```sh
+--set ingress.enabled=true \
+--set ingress.hosts[0].host=node-actions.local
+```
+
+Access options:
+- Port-forward: `kubectl -n k8s-webhook-operator-system port-forward svc/k8s-webhook-operator-api 8080:80`
+- Ingress (if enabled): update your host mappings as appropriate for your ingress/LB.
 
 ## API
 All endpoints expect `Content-Type: application/json` and a POST body.
